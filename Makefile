@@ -16,10 +16,6 @@ ifeq ($(UNAME_S),Darwin)
 	clang -arch x86_64 --verbose -o $@ $< -lSystem
 else ifeq ($(UNAME_S),Linux)
 	ld -static -o $@ $<
-else
-	# Windows link. Use gcc as a linker driver.
-	# -nostdlib is needed because we provide our own _start entry point.
-	gcc -o $@ $< -lkernel32 -nostdlib
 endif
 
 $(MAIN_OBJ): $(MAIN)
@@ -28,8 +24,6 @@ ifeq ($(UNAME_S),Darwin)
 	nasm -f macho64 -g -D__$(UNAME_S) $< -o $@
 else ifeq ($(UNAME_S),Linux)
 	nasm -f elf64 -g -D__$(UNAME_S) $< -o $@
-else
-	nasm -f win64 -g -D__$(UNAME_S) $< -o $@
 endif
 
 run: all

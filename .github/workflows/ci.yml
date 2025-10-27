@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -23,11 +23,7 @@ jobs:
     - name: Install NASM (macOS)
       if: runner.os == 'macOS'
       run: brew install nasm
-
-    - name: Install NASM (Windows)
-      if: runner.os == 'Windows'
-      run: choco install nasm
-
+      
     - name: Build
       run: make all
 
