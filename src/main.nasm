@@ -116,9 +116,21 @@ print_hello:
     call print_hello
     ; 'ExitProcess' will start with rsp at ...0 (aligned).
     mov rcx, 0 ; 1st args: ExitCode
-    call ExitProcess
+    ret
 %endif
 
 _main: ; This label is not needed if _start is the entry point
+%ifdef __Linux
     call _start
     ret
+%elifdef __Darwin
+    call _start
+    ret
+%else ; Windows
+    ; allocate 64 bytes
+    ; I don't know man, windows bs ???
+    sub rsp, 64
+    call _start
+    mov rcx, 0 ; 1st args: ExitCode
+    ret
+%endif
