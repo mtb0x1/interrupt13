@@ -10,8 +10,8 @@
 
 [bits 64]
 
-%define print_hello_var_size 7
-print_hello:
+%define hello_world_size 13
+print_hello_world:
     push rbp
     mov rbp, rsp
     
@@ -19,69 +19,43 @@ print_hello:
     ; cause why not, also stack must be 16 byte aligned
     sub rsp, 64
 
-%ifdef __Linux
-    ; Linux code 
-    mov BYTE [rsp + 0], 'h'
+    ; "Hello World!" string
+    mov BYTE [rsp + 0], 'H'
     mov BYTE [rsp + 1], 'e'
     mov BYTE [rsp + 2], 'l'
     mov BYTE [rsp + 3], 'l'
     mov BYTE [rsp + 4], 'o'
-    mov BYTE [rsp + 5], 0 
-    mov BYTE [rsp + 6], 10
+    mov BYTE [rsp + 5], ' '
+    mov BYTE [rsp + 6], 'W'
+    mov BYTE [rsp + 7], 'o'
+    mov BYTE [rsp + 8], 'r'
+    mov BYTE [rsp + 9], 'l'
+    mov BYTE [rsp + 10], 'd'
+    mov BYTE [rsp + 11], '!'
+    mov BYTE [rsp + 12], 10
 
     mov rax, SYSCALL_WRITE
     mov rdi, STDOUT
     lea rsi, [rsp]
-    mov rdx, print_hello_var_size
+    mov rdx, hello_world_size
     syscall
 
     add rsp, 64 ; deallocate stack
-
-%elifdef __Darwin
-    ; macOS code 
-    mov BYTE [rsp + 0], 'h'
-    mov BYTE [rsp + 1], 'e'
-    mov BYTE [rsp + 2], 'l'
-    mov BYTE [rsp + 3], 'l'
-    mov BYTE [rsp + 4], 'o'
-    mov BYTE [rsp + 5], 0 
-    mov BYTE [rsp + 6], 10
-
-    mov rax, SYSCALL_WRITE
-    mov rdi, STDOUT
-    lea rsi, [rsp]
-    mov rdx, print_hello_var_size
-    syscall
-
-    add rsp, 64 ; deallocate stack
-
-%endif
 
     ; Common exit for all platforms
     pop rbp
     ret
 
- section .text
- global _start
- global _main
+section .text
+global _start
+global _main
 
- _start:
-    call print_hello
-%ifdef __Linux
+_start:
+    call print_hello_world
     mov rax, SYSCALL_EXIT
     mov rdi, 0
     syscall
-%elifdef __Darwin
-    mov rax, SYSCALL_EXIT
-    mov rdi, 0
-    syscall
-%endif
 
 _main: ; This label is not needed if _start is the entry point
-%ifdef __Linux
     call _start
     ret
-%elifdef __Darwin
-    call _start
-    ret
-%endif
