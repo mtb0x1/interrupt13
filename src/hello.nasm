@@ -9,13 +9,14 @@
 %define STDOUT 1 ; File descriptor 1 is stdout.
 
 [bits 64]
+default rel ;https://sayansivakumaran.com/posts/2024/4/rip-relative-addressing-in-x86-64/
 
-section .data
+section .data align=8 ;https://stackoverflow.com/questions/45874323/how-to-set-the-alignment-for-the-data-section
 hello_msg db "Hello ", 0
 excl_msg db "!", 10, 0
 no_arg_msg db "You need to provide a name!", 10, 0
 
-section .text
+section .text align=16 ;https://stackoverflow.com/questions/45874323/how-to-set-the-alignment-for-the-data-section
 global _start
 global _main
 
@@ -32,7 +33,7 @@ _start:
     mov rax, SYSCALL_WRITE
     mov rdi, STDOUT
     mov rdx, 6
-    mov rsi, hello_msg
+    lea rsi, [rel hello_msg] 
     syscall
 
     ; write argument
@@ -52,7 +53,7 @@ done_count:
     ; Write "!\n"
     mov rax, SYSCALL_WRITE
     mov rdi, STDOUT
-    mov rsi, excl_msg
+    lea rsi, [rel excl_msg] 
     mov rdx, 2
     syscall
 
@@ -62,7 +63,7 @@ no_arg:
     ; Write error message
     mov rax, SYSCALL_WRITE
     mov rdi, STDOUT
-    mov rsi, no_arg_msg
+    lea rsi, [rel no_arg_msg]
     mov rdx, 28
     syscall
 
