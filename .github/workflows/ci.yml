@@ -27,5 +27,18 @@ jobs:
     - name: Build
       run: make
 
-    - name: Run
-      run: make run
+    - name: Run Hello World
+      if: runner.os != 'macOS'
+      run: ./build/helloworld
+
+    - name: Run Hello World (macOS)
+      if: runner.os == 'macOS'
+      run: arch -x86_64 ./build/helloworld
+
+    - name: Run Hello "CI Test"
+      if: runner.os != 'macOS'
+      run: ./build/hello "CI Test"
+
+    - name: Run Hello "CI Test" (macOS)
+      if: runner.os == 'macOS'
+      run: arch -x86_64 ./build/hello "CI Test"
