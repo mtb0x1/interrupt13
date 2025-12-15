@@ -35,3 +35,8 @@ jobs:
       run: |
         time ./build/sleep 1
         time ./build/sleep 1s 1s 1s
+
+    - name: Run Cat
+      run: |
+        ./build/cat src/cat.rs
+        ./build/cat build/cat
