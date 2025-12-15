@@ -23,7 +23,13 @@ jobs:
       run: ./build/helloworld
 
     - name: Run Hello User
-      run: ./build/hello "CI Test"
+      run: |
+        ./build/printf "CI Test"
+        ./build/printf "CI Test\nCI Test2"
+        ./build/printf "CI Test\rHello CI Test2" #buggy
+        ./build/printf "CI Test\ttabbbbbbb"
+        ./build/printf "CI Test\0 who ?"
+        ./build/printf "CI Test\\\t.Escaped"
 
     - name: Run Sleep
       run: time ./build/sleep 1
