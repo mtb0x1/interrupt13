@@ -33,10 +33,12 @@ jobs:
 
     - name: Run Sleep
       run: |
+        ldd ./build/sleep
         time ./build/sleep 1
         time ./build/sleep 1s 1s 1s
 
     - name: Run Cat
       run: |
+        ldd ./build/cat
         ./build/cat src/cat.rs
         ./build/cat build/cat
