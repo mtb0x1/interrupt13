@@ -1,6 +1,6 @@
 # Interrupt13 POCs
 
-A collection of POCs programs written in nasm.
+A collection of POCs programs written in rust/asm/nasm.
 
 ## Structure
 
