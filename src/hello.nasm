@@ -1,24 +1,19 @@
-%ifdef __Linux
-    %define SYSCALL_EXIT 60
-    %define SYSCALL_WRITE 1
-%elifdef __Darwin
-    %define SYSCALL_EXIT 0x2000001
-    %define SYSCALL_WRITE 0x2000004
-%endif
-
+%define SYSCALL_EXIT 60
+%define SYSCALL_WRITE 1
 %define STDOUT 1 ; File descriptor 1 is stdout.
 
 [bits 64]
 default rel ;https://sayansivakumaran.com/posts/2024/4/rip-relative-addressing-in-x86-64/
 
 section .data align=8 ;https://stackoverflow.com/questions/45874323/how-to-set-the-alignment-for-the-data-section
-hello_msg db "Hello ", 0
+hello_msg db "Hello ", 10, 0
 excl_msg db "!", 10, 0
 no_arg_msg db "You need to provide a name!", 10, 0
 
 section .text align=16 ;https://stackoverflow.com/questions/45874323/how-to-set-the-alignment-for-the-data-section
 global _start
 global _main
+
 
 _start:
     pop rcx         ; argc
@@ -27,7 +22,7 @@ _start:
 
     pop rsi         ; argv[0]
     pop rsi         ; argv[1], now rsi point to arg string 
-     mov rbx, rsi   ; save arg
+    mov rbx, rsi   ; save arg
 
      ; write  "Hello "
     mov rax, SYSCALL_WRITE
@@ -39,11 +34,13 @@ _start:
     ; write argument
     mov rdx, 0
     mov rdi, rbx
+
 count_len:
     cmp byte [rdi + rdx], 0
     je done_count
     inc rdx
     jmp count_len
+
 done_count:
     mov rax, SYSCALL_WRITE
     mov rdi, STDOUT

@@ -1,12 +1,6 @@
-%ifdef __Linux
-    %define SYSCALL_EXIT 60
-    %define SYSCALL_WRITE 1
-    %define STDOUT 1 ; File descriptor 1 is stdout.
-%elifdef __Darwin
-    %define SYSCALL_EXIT 0x2000001
-    %define SYSCALL_WRITE 0x2000004
-    %define STDOUT 1 ; File descriptor 1 is stdout.
-%endif
+%define SYSCALL_EXIT 60
+%define SYSCALL_WRITE 1
+%define STDOUT 1 ; File descriptor 1 is stdout.
 
 [bits 64]
 

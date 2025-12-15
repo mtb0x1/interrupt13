@@ -8,37 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-
+    runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install NASM (Ubuntu)
-      if: runner.os == 'Linux'
+    - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y nasm
 
-    - name: Install NASM (macOS)
-      if: runner.os == 'macOS'
-      run: brew install nasm
-      
     - name: Build
       run: make
 
     - name: Run Hello World
-      if: runner.os != 'macOS'
       run: ./build/helloworld
 
-    - name: Run Hello World (macOS)
-      if: runner.os == 'macOS'
-      run: arch -x86_64 ./build/helloworld
-
-    - name: Run Hello "CI Test"
-      if: runner.os != 'macOS'
+    - name: Run Hello User
       run: ./build/hello "CI Test"
 
-    - name: Run Hello "CI Test" (macOS)
-      if: runner.os == 'macOS'
-      run: arch -x86_64 ./build/hello "CI Test"
+    - name: Run Sleep
+      run: time ./build/sleep 1

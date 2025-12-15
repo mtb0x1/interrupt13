@@ -1,52 +1,28 @@
 OUT_DIR := build
 SRC_DIR := src
-HELLOWORLD := $(SRC_DIR)/helloworld.nasm
-HELLOWORLD_OBJ := $(OUT_DIR)/helloworld.o
-HELLOWORLD_BIN := $(OUT_DIR)/helloworld
-HELLO := $(SRC_DIR)/hello.nasm
-HELLO_OBJ := $(OUT_DIR)/hello.o
-HELLO_BIN := $(OUT_DIR)/hello
-UNAME_S := $(shell uname -s)
-EXTRA_TARGETS := $(filter-out run hello, $(MAKECMDGOALS))
-TARGET := $(if $(filter helloworld, $(EXTRA_TARGETS)), helloworld, $(if $(filter hello, $(EXTRA_TARGETS)), hello, helloworld))
-TARGET_BIN := $(OUT_DIR)/$(TARGET)
 
-.PHONY: clean $(HELLOWORLD_BIN) $(HELLO_BIN) all run hello
+# Find sources
+ASM_SRCS := $(wildcard $(SRC_DIR)/*.nasm)
+ASM_BINS := $(patsubst $(SRC_DIR)/%.nasm, $(OUT_DIR)/%, $(ASM_SRCS))
 
-all: $(HELLOWORLD_BIN) $(HELLO_BIN)
+RUST_SRCS := $(wildcard $(SRC_DIR)/*.rs)
+RUST_BINS := $(patsubst $(SRC_DIR)/%.rs, $(OUT_DIR)/%, $(RUST_SRCS))
 
-# Create output dir, then assemble + link
-$(HELLOWORLD_BIN): $(HELLOWORLD_OBJ)
-	#file $<
-ifeq ($(UNAME_S),Darwin)
-	clang -arch x86_64 --verbose -o $@ $< -lSystem
-else ifeq ($(UNAME_S),Linux)
-	ld -static -o $@ $<
-endif
+.PHONY: all clean
 
-$(HELLOWORLD_OBJ): $(HELLOWORLD)
-	mkdir -p $(OUT_DIR)
-ifeq ($(UNAME_S),Darwin)
-	nasm -f macho64 -g -D__$(UNAME_S) $< -o $@
-else ifeq ($(UNAME_S),Linux)
-	nasm -f elf64 -g -D__$(UNAME_S) $< -o $@
-endif
+all: $(ASM_BINS) $(RUST_BINS)
 
-$(HELLO_BIN): $(HELLO_OBJ)
-	#file $<
-ifeq ($(UNAME_S),Darwin)
-	clang -arch x86_64 --verbose -o $@ $< -lSystem
-else ifeq ($(UNAME_S),Linux)
-	ld -static -o $@ $<
-endif
+# Pattern rule for NASM assembly
+$(OUT_DIR)/%: $(SRC_DIR)/%.nasm
+	@mkdir -p $(OUT_DIR)
+	nasm -f elf64 -g -D__Linux $< -o $@.o
+	ld -static -o $@ $@.o
+	@rm $@.o
 
-$(HELLO_OBJ): $(HELLO)
-	mkdir -p $(OUT_DIR)
-ifeq ($(UNAME_S),Darwin)
-	nasm -f macho64 -g -D__$(UNAME_S) $< -o $@
-else ifeq ($(UNAME_S),Linux)
-	nasm -f elf64 -g -D__$(UNAME_S) $< -o $@
-endif
+# Pattern rule for Rust
+$(OUT_DIR)/%: $(SRC_DIR)/%.rs
+	@mkdir -p $(OUT_DIR)
+	rustc -C panic=abort -C link-arg=-nostartfiles -O -o $@ $<
 
 clean:
 	rm -rf $(OUT_DIR)

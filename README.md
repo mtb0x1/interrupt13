@@ -17,6 +17,7 @@ Run `make` to build the POCs.
 - NASM assembler
 - GNU Make
 - GCC linker (or appropriate linker for your platform)
+- Rust compiler (rustc)
 
 ## Usage
 

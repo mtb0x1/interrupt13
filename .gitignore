@@ -1,4 +1,4 @@
-build
-*.o
-*.obj
-*.elf
+build/
+target/
+**/*.o
+**/*.obj
