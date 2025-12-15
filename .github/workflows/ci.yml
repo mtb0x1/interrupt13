@@ -32,4 +32,6 @@ jobs:
         ./build/printf "CI Test\\\t.Escaped"
 
     - name: Run Sleep
-      run: time ./build/sleep 1
+      run: |
+        time ./build/sleep 1
+        time ./build/sleep 1s 1s 1s

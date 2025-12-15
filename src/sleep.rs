@@ -170,24 +170,51 @@ unsafe fn bytes_from_nullterminated<'a>(ptr: NonNull<c_char>) -> &'a [u8] {
 }
 
 unsafe fn main_impl(args: &[NonNull<c_char>]) -> Result<(), ()> {
-    let Some(&sleep_duration) = args.get(1) else {
-        print("Usage: sleep SECONDS\n");
+    if args.len() < 2 {
+        print("Usage: sleep NUMBER[SUFFIX]...\n");
         return Err(());
-    };
+    }
 
-    let sleep_duration_bytes = unsafe { bytes_from_nullterminated(sleep_duration) };
+    let mut total_duration = Duration::ZERO;
 
-    let Ok(sleep_duration_str) = str::from_utf8(sleep_duration_bytes) else {
-        print("I dont work with non-UTF8 stuff\n");
-        return Err(());
-    };
+    for &arg_ptr in &args[1..] {
+        let arg_bytes = unsafe { bytes_from_nullterminated(arg_ptr) };
+        let Ok(arg_str) = str::from_utf8(arg_bytes) else {
+            print("I dont work with non-UTF8 stuff\n");
+            return Err(());
+        };
 
-    let sleep_duration_int: u32 = sleep_duration_str
-        .parse()
-        .inspect_err(|_| print("parameter should be integer\n"))
-        .map_err(|_| ())?;
+        if arg_str.is_empty() {
+            continue;
+        }
 
-    sleep(Duration::from_secs(sleep_duration_int as _));
+        let (num_str, multiplier) = match arg_str.bytes().last() {
+            Some(b's') => (&arg_str[..arg_str.len() - 1], 1),
+            Some(b'm') => (&arg_str[..arg_str.len() - 1], 60),
+            Some(b'h') => (&arg_str[..arg_str.len() - 1], 3600),
+            Some(b'd') => (&arg_str[..arg_str.len() - 1], 86400),
+            Some(_) if arg_str.chars().all(|c| c.is_ascii_digit()) => (arg_str, 1),
+            _ => {
+                print("Invalid time interval '");
+                print(arg_str);
+                print("'\n");
+                return Err(());
+            }
+        };
+
+        let arg_val: u64 = num_str
+            .parse()
+            .inspect_err(|_| {
+                print("Invalid time interval '");
+                print(arg_str);
+                print("'\n");
+            })
+            .map_err(|_| ())?;
+
+        total_duration += Duration::from_secs(arg_val * multiplier);
+    }
+
+    sleep(total_duration);
     Ok(())
 }
 
